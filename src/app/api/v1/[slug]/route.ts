@@ -1,8 +1,10 @@
 import Collections, { DB_NAME } from "@/lib/consts/db";
+import { getAuth } from "@/lib/helpers/auth";
 import { Key, KeyType, getFilter, getSort } from "@/lib/helpers/query";
-import { AuthenticatedRequest, authenticate } from "@/lib/middleware/auth";
+import { unauthenticated } from "@/lib/helpers/response";
 import { validateRoute } from "@/lib/middleware/dynamic";
 import clientPromise from "@/lib/mongodb";
+import { ObjectId } from "mongodb";
 import { NextRequest } from "next/server";
 import url from "url";
 
@@ -51,21 +53,27 @@ export async function GET(request: NextRequest, { params }: { params: { slug: st
 }
 
 
-export async function POST(request: AuthenticatedRequest, { params }: { params: { slug: string; }; })
+export async function POST(request: NextRequest, { params }: { params: { slug: string; }; })
 {
     try
     {
-        await authenticate(request);
+        const authenticatedUser = await getAuth(request);
+        if (!authenticatedUser)
+        {
+            return unauthenticated;
+        }
+
         const body = await request.json();
         const client = await clientPromise;
         const col = client.db(DB_NAME).collection(params.slug);
+        console.log("authenticatedUser", authenticatedUser._id);
 
         const dbRes = await col.insertOne({
             ...body,
             active: !!body.active ? body.active : false,
             history: {
                 created: {
-                    by: request.user._id,
+                    by: authenticatedUser._id,
                     at: new Date()
                 },
             }
