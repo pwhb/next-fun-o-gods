@@ -50,11 +50,11 @@ export async function GET(request: Request)
             limit
         }).toArray();
         const count = await col.countDocuments(filter);
-        return Response.json({ success: true, page, limit, count: count, data: docs }, { status: 200 });
-    } catch (err)
+        return Response.json({  page, limit, count: count, data: docs }, { status: 200 });
+    } catch (e: any)
     {
-        console.error(err);
-        return Response.json({ success: false, error: err }, { status: 400 });
+        console.error(e);
+        return Response.json({  error: e, message: e.message }, { status: 400 });
     }
 }
 

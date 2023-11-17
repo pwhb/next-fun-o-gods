@@ -1,39 +1,33 @@
+import { cookies } from 'next/headers';
 import { NextResponse } from 'next/server';
-import { AuthenticatedRequest, authenticate } from './lib/middleware/auth';
+import { NextRequest } from 'next/server';
 
 // This function can be marked `async` if using `await` inside
-export async function middleware(request: AuthenticatedRequest)
+export function middleware(request: NextRequest)
 {
+
     const userJSONString = request.cookies.get("user");
     const tokenString = request.cookies.get("token");
 
     console.log("middleware", tokenString, request.nextUrl.pathname);
 
-
-
-    switch (request.nextUrl.pathname)
+    if (request.nextUrl.pathname.startsWith("/admin"))
     {
-        case "/test/client": {
-            break;
-        }
-        case "/test/server": {
-            break;
-        }
-        case "/login": {
-            if (userJSONString && tokenString && userJSONString.value && tokenString.value)
-            {
-                return NextResponse.redirect(new URL('/', request.url));
-            }
-            break;
-        }
-        default: {
-            if (!userJSONString || !tokenString)
-            {
+        if (!userJSONString || !tokenString)
+        {
 
-                return NextResponse.redirect(new URL('/login', request.url));
-            }
+            return NextResponse.redirect(new URL('/login', request.url));
         }
     }
+
+    if (request.nextUrl.pathname === "/login")
+    {
+        if (userJSONString && tokenString && userJSONString.value && tokenString.value)
+        {
+            return NextResponse.redirect(new URL('/', request.url));
+        }
+    }
+
 
     return NextResponse.next();
 }

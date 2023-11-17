@@ -1,7 +1,7 @@
 'use client';
 
 import AuthWrapper from "@/components/auth/AuthWrapper";
-import { loginUser } from "@/lib/actions/auth";
+import { login } from "@/lib/actions/auth";
 
 import PlaceholderKeys from "@/lib/consts/placeholder";
 import { useState } from "react";
@@ -10,7 +10,7 @@ import { useFormState, useFormStatus } from "react-dom";
 export default function Page()
 {
     const [isPasswordVisible, setIsPasswordVisible] = useState(false);
-    const [state, formAction] = useFormState(loginUser, undefined);
+    const [state, formAction] = useFormState(login, undefined);
     const { pending } = useFormStatus();
     return (<AuthWrapper>
         <form action={formAction}>
@@ -23,9 +23,9 @@ export default function Page()
                 id="username"
                 name="username"
                 placeholder={PlaceholderKeys.username}
-                className={`input input-bordered ${state?.username.error ? 'input-error' : ''}`}
+                className={`input input-bordered ${state?.username?.length ? 'input-error' : ''}`}
             />
-            {state?.username.error && <p className="text-error my-2">{state?.username.error}</p>}
+            {state?.username?.length && <p className="text-error my-2">{state?.username?.at(0)}</p>}
 
 
 
@@ -37,9 +37,9 @@ export default function Page()
                 id="password"
                 name="password"
                 placeholder=""
-                className={`input input-bordered ${state?.password.error ? 'input-error' : ''}`}
+                className={`input input-bordered ${state?.password?.length ? 'input-error' : ''}`}
             />
-            {state?.password.error && <p className="text-error my-2">{state?.password.error}</p>}
+            {state?.password?.length && <p className="text-error my-2">{state?.password?.at(0)}</p>}
 
 
 

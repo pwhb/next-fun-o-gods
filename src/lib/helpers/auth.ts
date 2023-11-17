@@ -1,18 +1,16 @@
-import { getUser } from "@/app/api/v1/users/route";
-import { verify } from "argon2";
+import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
-import { ObjectId } from "mongodb";
-import { NextRequest, NextResponse } from "next/server";
-import Collections, { DB_NAME } from "../consts/db";
-import clientPromise from "../mongodb";
+import { Filter } from 'mongodb';
 
-// const ONE_HOUR = Math.floor(Date.now() / 1000) + (60 * 60)
-const AUTH_SECRET_KEY = process.env.AUTH_SECRET_KEY as string;
-export function signJwt(payload: string | object) 
+import clientPromise from '../mongodb';
+import Collections, { DB_NAME } from '../consts/db';
+
+const AUTH_SECRET = process.env.AUTH_SECRET as string;
+function sign(payload: string | object) 
 {
     const token = jwt.sign(
         payload,
-        AUTH_SECRET_KEY,
+        AUTH_SECRET,
         {
             expiresIn: "1d"
         }
@@ -20,126 +18,76 @@ export function signJwt(payload: string | object)
     return token;
 };
 
-export function verifyJwt(token: string) 
+function verify(token: string) 
 {
-    const decoded = jwt.verify(token, AUTH_SECRET_KEY);
+    const decoded = jwt.verify(token, AUTH_SECRET);
     return decoded;
 };
-
-interface LoginInput
-{
-    username: string;
-    password: string;
-}
-
-
-
-export async function login({ username, password }: LoginInput)
-{
-    const res = {
-        status: 400,
-        body: {
-            success: false,
-            username: {
-                value: username,
-                error: ""
-            },
-            password: {
-                value: password,
-                error: ""
-            }
-        }
-    };
-
-    if (!username.trim())
-    {
-        res.body.username.error = "Username cannot be empty.";
-        return res;
-    }
-    if (!password.trim())
-    {
-        res.body.password.error = "Password cannot be empty.";
-        return res;
-    }
-
-
-    const existingUser = await getUser(username);
-
-    if (!existingUser)
-    {
-        res.body.username.error = "User not found.";
-        return res;
-    }
-
-    const isMatch = await verify(existingUser.password, password);
-
-    delete existingUser.password;
-
-    if (!isMatch)
-    {
-        res.body.password.error = "Incorrect password.";
-        return res;
-    }
-
-    const token = signJwt({ _id: existingUser._id });
-    return {
-        status: 200,
-        body: {
-            success: true,
-            data: existingUser,
-            token: token
-        },
-    };
-
-
-}
-
-export async function getAuth(request: NextRequest)
+async function getUser(filter: Filter<any>)
 {
     try
     {
-        let token = request.cookies.get("token")?.value;
-        if (!token)
-        {
-            const authHeader = request.headers.get("Authorization");
-            if (!authHeader)
-            {
-                throw new Error("Invalid Header");
-            }
-            const [bearer, tokenString] = authHeader.split(" ");
-            if (bearer !== "Bearer")
-            {
-                throw new Error("Invalid Header");
-            }
-            token = tokenString;
-        }
-
-
-        const jwtRes: any = verifyJwt(token as string);
-        if (!jwtRes._id)
-        {
-            throw new Error("Invalid token");
-        }
 
         const client = await clientPromise;
         const col = client.db(DB_NAME).collection(Collections.User);
-
-        const existingUser = await col.findOne({
-            _id: new ObjectId(jwtRes._id)
-        }) as any;
-
-        if (!existingUser)
-        {
-            throw new Error("User not found");
-        }
-
-        return existingUser;
-    }
-    catch (e)
+        const docs = await col.aggregate([
+            {
+                $match: filter
+            },
+            {
+                $lookup: {
+                    from: "roles",
+                    localField: "role",
+                    foreignField: "_id",
+                    as: "role"
+                }
+            },
+            {
+                $addFields: {
+                    role: { $arrayElemAt: ['$role.name', 0] }
+                }
+            },
+            {
+                $limit: 1
+            }
+        ]).toArray();
+        return docs[0];
+    } catch (e)
     {
         console.error(e);
         return null;
     }
-    // const cookieToken = ;
+}
 
+export async function signIn({ username, password }: { username: string, password: string; })
+{
+    const user = await getUser({ username: username });
+    if (!user)
+    {
+        return {
+            error: {
+                username: ["User not found."],
+                password: [""]
+            }
+        };
+    }
+    const passwordsMatch = await bcrypt.compare(password, user.password);
+    if (!passwordsMatch)
+    {
+        return {
+            error: {
+                username: [""],
+                password: ["Incorrect password."]
+            }
+        };
+    }
+
+    delete user.password;
+
+    return {
+        data: {
+            user,
+            token: sign({ username: user.username })
+        }
+    };
 }

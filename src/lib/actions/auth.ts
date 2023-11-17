@@ -1,43 +1,44 @@
 'use server';
-import { redirect } from "next/navigation";
-import { login } from "../helpers/auth";
-import { cookies } from "next/headers";
-import { isRedirectError } from "next/dist/client/components/redirect";
+import { z } from 'zod';
+import { signIn } from '../helpers/auth';
+import { cookies } from 'next/headers';
+import { redirect } from 'next/navigation';
 
 
 
-export async function loginUser(prevState: any, formData: FormData)
+function setCookies(user: any, token: string)
+{
+    cookies().set("user", JSON.stringify(user));
+    cookies().set("token", token);
+}
+export async function login(prevState: any, formData: FormData)
 {
     try
     {
-        const username = formData.get("username") as string;
-        const password = formData.get("password") as string;
-        const { status, body } = await login({ username, password }) as any;
-        if (status === 200)
+        const validated = z
+            .object({
+                username: z.string().min(1, "Username is required."),
+                password: z.string().min(1, "Password is required."),
+            })
+            .safeParse(Object.fromEntries(formData));
+        if (!validated.success)
         {
-            console.log(body);
-            cookies().set("token", body.token);
-            cookies().set("user", body.data);
-            return redirect('/');
-        }
-        return body;
+            console.log("validated.error", validated.error.flatten().fieldErrors);
 
-    } catch (e)
-    {
-        console.log(e);
-        if (isRedirectError(e))
-        {
-            return redirect('/');
+            return validated.error.flatten().fieldErrors;
         }
-        return {
-            username: {
-                value: "",
-                error: ""
-            },
-            password: {
-                value: "",
-                error: ""
-            }
-        };
+        const { username, password } = validated.data;
+        const { error, data } = await signIn({ username, password });
+
+        if (error)
+        {
+            return error;
+        }
+
+        setCookies(data.user, data.token);
+    } catch (e: any)
+    {
+        console.error(e);
     }
+    return redirect("/");
 }

@@ -1,6 +1,5 @@
 import Collections, { DB_NAME } from "@/lib/consts/db";
 import { Key, KeyType, getFilter, getSort } from "@/lib/helpers/query";
-import { AuthenticatedRequest, authenticate } from "@/lib/middleware/auth";
 import clientPromise from "@/lib/mongodb";
 import { NextRequest } from "next/server";
 import url from "url";
@@ -40,25 +39,19 @@ export async function GET(request: NextRequest)
             limit
         }).toArray();
         const count = await col.countDocuments(filter);
-        return Response.json({ success: true, page, limit, count: count, data: docs }, { status: 200 });
-    } catch (err)
+        return Response.json({  page, limit, count: count, data: docs }, { status: 200 });
+    } catch (e: any)
     {
-        console.error(err);
-        return Response.json({ success: false, error: err }, { status: 400 });
+        console.error(e);
+        return Response.json({  error: e, message: e.message }, { status: 400 });
     }
 }
 
 
-export async function POST(request: AuthenticatedRequest)
+export async function POST(request: NextRequest)
 {
     try
     {
-        console.log("before auth");
-
-        authenticate(request);
-
-        console.log("after auth");
-
         const body = await request.json();
         const client = await clientPromise;
         const col = client.db(DB_NAME).collection(COLLECTION);
@@ -72,10 +65,10 @@ export async function POST(request: AuthenticatedRequest)
             updatedAt: new Date(),
         });
 
-        return Response.json({ success: true, data: dbRes }, { status: 201 });
-    } catch (err)
+        return Response.json({  data: dbRes }, { status: 201 });
+    } catch (e: any)
     {
-        console.error(err);
-        return Response.json({ success: false, error: err }, { status: 400 });
+        console.error(e);
+        return Response.json({  error: e, message: e.message }, { status: 400 });
     }
 };
