@@ -1,11 +1,9 @@
 import Collections, { DB_NAME } from "@/lib/consts/db";
 
 import { Key, KeyType, getFilter, getSort } from "@/lib/helpers/query";
-import { unauthenticated } from "@/lib/helpers/response";
 import { Role } from "@/lib/models/roles";
 
 import clientPromise from "@/lib/mongodb";
-import { roles } from "@/lib/schema";
 import { ObjectId } from "mongodb";
 import { NextRequest } from "next/server";
 import url from "url";

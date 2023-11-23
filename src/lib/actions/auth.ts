@@ -1,8 +1,9 @@
 'use server';
-import { z } from 'zod';
+
 import { signIn } from '../helpers/auth';
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
+import { AuthInput } from '../models/users';
 
 
 
@@ -11,15 +12,21 @@ function setCookies(user: any, token: string)
     cookies().set("user", JSON.stringify(user));
     cookies().set("token", token);
 }
+
+export async function getCookies()
+{
+    const user = cookies().get("user")?.value;
+    const token = cookies().get("token")?.value;
+    return {
+        user: user && JSON.parse(user),
+        token: token
+    };
+}
 export async function login(prevState: any, formData: FormData)
 {
     try
     {
-        const validated = z
-            .object({
-                username: z.string().min(1, "Username is required."),
-                password: z.string().min(1, "Password is required."),
-            })
+        const validated = AuthInput
             .safeParse(Object.fromEntries(formData));
         if (!validated.success)
         {
@@ -36,6 +43,19 @@ export async function login(prevState: any, formData: FormData)
         }
 
         setCookies(data.user, data.token);
+    } catch (e: any)
+    {
+        console.error(e);
+    }
+    return redirect("/");
+}
+
+export async function logout()
+{
+    try
+    {
+        cookies().delete("user");
+        cookies().delete("token");
     } catch (e: any)
     {
         console.error(e);

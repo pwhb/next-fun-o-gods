@@ -8,7 +8,9 @@ enum Collections
     Scene = "scenes",
     Story = "stories",
     User = "users",
-    Upload = "uploads"
+    Upload = "uploads",
+    Menu = "menus",
+    Permission = "permissions"
 }
 
 export const DB_NAME = process.env.DB_NAME;

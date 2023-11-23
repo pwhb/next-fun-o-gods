@@ -7,11 +7,19 @@ import PlaceholderKeys from "@/lib/consts/placeholder";
 import { useState } from "react";
 import { useFormState, useFormStatus } from "react-dom";
 
+
+function SubmitButton()
+{
+    const { pending } = useFormStatus();
+    return <div className="form-control mt-6">
+        <button className="btn btn-primary" type="submit" disabled={pending} aria-disabled={pending}>{pending ? <span className="loading"></span> : "Sign In"}</button>
+    </div>;
+}
 export default function Page()
 {
     const [isPasswordVisible, setIsPasswordVisible] = useState(false);
     const [state, formAction] = useFormState(login, undefined);
-    const { pending } = useFormStatus();
+
     return (<AuthWrapper>
         <form action={formAction}>
             <p className="text-center my-3 font-semibold text-primary text-2xl">Log in</p>
@@ -54,10 +62,7 @@ export default function Page()
                 >Don't have an account? Create one!</a
                 >
             </div>
-            <div className="form-control mt-6">
-
-                <button className="btn btn-primary" type="submit" disabled={pending} aria-disabled={pending}>Log in</button>
-            </div>
+            <SubmitButton />
         </form >
     </AuthWrapper >);
 }

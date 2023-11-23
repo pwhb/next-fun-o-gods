@@ -11,17 +11,13 @@
     "schema:migrate": "bun db/migrate.ts"
   },
   "dependencies": {
-    "@auth/drizzle-adapter": "^0.3.6",
-    "@libsql/client": "^0.3.6",
     "bcrypt": "^5.1.1",
-    "drizzle-orm": "^0.29.0",
-    "drizzle-zod": "^0.5.1",
     "jsonwebtoken": "^9.0.2",
     "mongodb": "^6.2.0",
     "next": "14.0.1",
-    "next-auth": "^5.0.0-beta.3",
     "react": "^18",
-    "react-dom": "^18"
+    "react-dom": "^18",
+    "zod": "^3.22.4"
   },
   "devDependencies": {
     "@iconify/react": "^4.1.1",
@@ -31,7 +27,6 @@
     "@types/react": "^18",
     "@types/react-dom": "^18",
     "autoprefixer": "^10.0.1",
-    "drizzle-kit": "^0.20.2",
     "eslint": "^8",
     "eslint-config-next": "14.0.1",
     "postcss": "^8",
