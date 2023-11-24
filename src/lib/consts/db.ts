@@ -10,7 +10,8 @@ enum Collections
     User = "users",
     Upload = "uploads",
     Menu = "menus",
-    Permission = "permissions"
+    Permission = "permissions",
+    Option = "options"
 }
 
 export const DB_NAME = process.env.DB_NAME;

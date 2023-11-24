@@ -6,7 +6,7 @@ import { Icon } from "@iconify/react";
 import { useEffect, useState } from "react";
 import DeleteConfirmation from "../modal/DeleteConfirmation";
 import { openModal } from "../modal/Modal";
-import { deleteMany } from "@/lib/actions/db";
+import { deleteMany } from "@/lib/actions/wildcard";
 
 function TableData({ type, data }: { type: ColumnType, data: any; })
 {
@@ -31,7 +31,7 @@ function TableRow({ schema, doc, index, checked, onCheck }: { schema: IColumn[];
     const slug = pathname?.split("/")[2];
     return <tr>
         <td >{index + 1}</td>
-        {schema.map((col, j) => <TableData key={`td-${index}-${j}`} type={col.type} data={doc[col.value]} />)}
+        {schema.map((col, j) => <TableData key={`td-${index}-${j}`} type={col.type} data={doc[col.name]} />)}
         <td><Link href={`/admin/${slug}/${doc._id}`} className="btn btn-secondary btn-xs">Edit</Link></td>
         <td><input type="checkbox" checked={checked} onChange={onCheck} /></td>
     </tr>;
@@ -61,11 +61,11 @@ export default function Table({ schema, docs, collection }: { schema: IColumn[];
                 <tr>
                     <th></th>
                     {schema.map((col, i) =>
-                        <th className="capitalize" key={`table-head-${i}`}>{col.label || col.value}</th>
+                        <th className="capitalize" key={`table-head-${i}`}>{col.label || col.name}</th>
                     )}
                     <td className="gap-2"><Link href={`/admin/${slug}/create`} className="btn btn-primary btn-xs">Create</Link>
                     </td>
-                    <td><input type="checkbox" checked={selected.every(v => v)} onChange={() =>
+                    <td><input type="checkbox" checked={selected.length > 0 && selected.every(v => v)} onChange={() =>
                     {
                         if (selected.some(v => !v))
                         {

@@ -1,13 +1,26 @@
 import Editor from "@/components/editors/Editor";
-import { createMenu } from "@/lib/actions/menus";
-import { IColumn, getSchema } from "@/lib/helpers/form";
+import { createOne } from "@/lib/actions/menus";
+import { getMany } from "@/lib/actions/wildcard";
+import Collections from "@/lib/consts/db";
+import { ColumnType, getSchema } from "@/lib/helpers/form";
+import { serialize } from "@/lib/helpers/structures";
 import { Menu } from "@/lib/models/menus";
 
-export default function Page()
+export default async function Page()
 {
-    const schema: IColumn[] = getSchema(Menu.shape);
+
+
+    const menus = await getMany(Collections.Menu, {});
+    const schema = getSchema(Menu.shape, [{
+        type: ColumnType.Option,
+        name: "parent",
+        options: serialize(menus).map((menu: any) => ({
+            value: menu._id,
+            label: menu.name
+        }))
+    }]);
 
     return <>
-        <Editor schema={schema} action={createMenu} />
+        <Editor schema={schema} action={createOne} />
     </>;
 }

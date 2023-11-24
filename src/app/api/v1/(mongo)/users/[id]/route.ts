@@ -1,14 +1,16 @@
 import Collections, { DB_NAME } from "@/lib/consts/db";
+import { User } from "@/lib/models/users";
 import clientPromise from "@/lib/mongodb";
 import { ObjectId } from "mongodb";
 import { notFound } from "next/navigation";
 
-export async function GET(request: Request, { params }: { params: { slug: string; id: string; }; })
+const COL_NAME = Collections.User;
+export async function GET(request: Request, { params }: { params: { id: string; }; })
 {
     try
     {
         const client = await clientPromise;
-        const col = client.db(DB_NAME).collection(params.slug);
+        const col = client.db(DB_NAME).collection(COL_NAME);
 
         const dbRes = await col.findOne({ _id: new ObjectId(params.id) });
 
@@ -25,22 +27,31 @@ export async function GET(request: Request, { params }: { params: { slug: string
     }
 };
 
-export async function PATCH(request: Request, { params }: { params: { slug: string; id: string; }; })
+export async function PATCH(request: Request, { params }: { params: { id: string; }; })
 {
     try
     {
         const body = await request.json();
+        const validated = User.safeParse(body);
+        if (!validated.success)
+        {
+            return Response.json({
+                error: validated.error.flatten().fieldErrors,
+                message: 'Missing Fields.',
+            }, { status: 400 });
+        }
         const client = await clientPromise;
-        const col = client.db(DB_NAME).collection(params.slug);
+        const col = client.db(DB_NAME).collection(COL_NAME);
 
         const dbRes = await col.findOneAndUpdate({ _id: new ObjectId(params.id) }, {
             $set: {
-                label: body.label,
-                value: body.value,
-                description: body.description,
-                active: !!body.active ? body.active : false,
-                createdAt: new Date(),
-                updatedAt: new Date(),
+                ...validated.data,
+                role: validated.data.role ? new ObjectId(validated.data.role) : null,
+                "history.updated": {
+                    // by: authenticatedUser._id,
+                    at: new Date()
+                },
+
             }
         }, {
             returnDocument: "after"
@@ -54,14 +65,12 @@ export async function PATCH(request: Request, { params }: { params: { slug: stri
     }
 };
 
-export async function DELETE(request: Request, { params }: { params: { slug: string; id: string; }; })
+export async function DELETE(request: Request, { params }: { params: { id: string; }; })
 {
     try
     {
-        console.log('here');
-
         const client = await clientPromise;
-        const col = client.db(DB_NAME).collection(params.slug);
+        const col = client.db(DB_NAME).collection(COL_NAME);
 
         const dbRes = await col.deleteOne({
             _id: new ObjectId(params.id)

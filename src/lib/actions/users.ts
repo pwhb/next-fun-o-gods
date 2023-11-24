@@ -4,7 +4,7 @@ import Collections from "../consts/db";
 
 export async function createOne(prevState: any, formData: FormData)
 {
-    const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/v1/${Collections.Menu}`, {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/v1/${Collections.User}`, {
         headers: {
             "Content-Type": "application/json"
         },
@@ -19,7 +19,7 @@ export async function createOne(prevState: any, formData: FormData)
     }
     if (data.data)
     {
-        redirect(`/admin/${Collections.Menu}`);
+        redirect(`/admin/${Collections.User}`);
     }
 }
 
@@ -31,7 +31,7 @@ export async function updateOne(prevState: any, formData: FormData)
         return;
     }
 
-    const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/v1/${Collections.Menu}/${id}`, {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/v1/${Collections.User}/${id}`, {
         headers: {
             "Content-Type": "application/json"
         },
@@ -46,7 +46,7 @@ export async function updateOne(prevState: any, formData: FormData)
     }
     if (data.data)
     {
-        redirect(`/admin/${Collections.Menu}`);
+        redirect(`/admin/${Collections.User}`);
     }
 }
 

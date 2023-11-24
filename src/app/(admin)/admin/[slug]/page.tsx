@@ -1,6 +1,6 @@
 
 import Table from "@/components/tables/Table";
-import { getMany } from "@/lib/actions/db";
+import { getMany } from "@/lib/actions/wildcard";
 import { getSchema } from "@/lib/helpers/form";
 import { serialize } from "@/lib/helpers/structures";
 import { WildCard } from "@/lib/models/wildcard";

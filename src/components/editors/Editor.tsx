@@ -3,6 +3,7 @@ import { ColumnType, IColumn } from "@/lib/helpers/form";
 import TextInput from "../form/TextInput";
 import Toggle from "../form/Toggle";
 import { useFormState, useFormStatus } from "react-dom";
+import Select from "../form/Select";
 
 type Props = {
     schema: IColumn[];
@@ -10,18 +11,21 @@ type Props = {
     action: any;
 };
 
-function FormInput({ col, error, value }: { col: IColumn; error?: string[]; value?: any; })
+function FormInput({ col, error, value, options }: { col: IColumn; error?: string[]; value?: any; options?: { label: string, value: string; }[]; })
 {
-    if (col.value !== "_id")
+    if (col.name !== "_id")
     {
         switch (col.type)
         {
             case ColumnType.Icon:
             case ColumnType.Text: {
-                return <TextInput name={col.value} label={col.label || col.value} error={error} value={value} />;
+                return <TextInput name={col.name} label={col.label || col.name} error={error} value={value} />;
+            }
+            case ColumnType.Option: {
+                return <Select name={col.name} label={col.label || col.name} error={error} value={value} options={options!} />;
             }
             case ColumnType.Boolean: {
-                return <Toggle name={col.value} label={col.label || col.value} error={error} value={value} />;
+                return <Toggle name={col.name} label={col.label || col.name} error={error} value={value} />;
             }
         }
     }
@@ -35,6 +39,8 @@ function SubmitButton()
 }
 export default function Editor({ schema, action, doc }: Props)
 {
+    console.log(schema);
+
     const [state, formAction] = useFormState(action, undefined);
     const isEditing = doc && Object.keys(doc).length;
 
@@ -43,7 +49,7 @@ export default function Editor({ schema, action, doc }: Props)
         <p className="text-3xl font-bold my-5">{isEditing ? "Edit" : "Create"}</p>
         <div className="grid md:grid-cols-2 grid-cols-1 place-items-center mx-3">
             <input type="text" hidden name="id" defaultValue={doc?._id} />
-            {schema.map((col, i) => <FormInput key={`form-input-${i}`} col={col} error={state?.[col.value]} value={doc?.[col.value]} />)}
+            {schema.map((col, i) => <FormInput key={`form-input-${i}`} col={col} error={state?.[col.name]} value={doc?.[col.name]} options={col.options} />)}
         </div>
         <SubmitButton />
     </form>;

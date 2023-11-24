@@ -3,8 +3,9 @@ import { ZodBoolean } from "zod";
 export interface IColumn
 {
     label?: string;
-    value: string;
+    name: string;
     type: ColumnType;
+    options?: any[];
 }
 
 export enum ColumnType
@@ -15,6 +16,8 @@ export enum ColumnType
     Boolean = "boolean",
     ObjectId = "objectId",
     Icon = "icon",
+    Option = "option",
+    MultiSelect = "multiSelect"
 }
 
 function getColumn(key: string, typeName: string)
@@ -24,21 +27,21 @@ function getColumn(key: string, typeName: string)
         case ("ZodString"): {
             return {
                 label: key,
-                value: key,
+                name: key,
                 type: key === "icon" ? ColumnType.Icon : ColumnType.Text
             };
         }
         case ("ZodBoolean"): {
             return {
                 label: key,
-                value: key,
+                name: key,
                 type: ColumnType.Boolean
             };
         }
         default: {
             return {
                 label: key,
-                value: key,
+                name: key,
                 type: ColumnType.Text
             };
         }
@@ -48,12 +51,18 @@ export function getSchema(shape: object, customSchema: IColumn[] = [])
 {
     const schema: IColumn[] = [{
         label: "ObjectId",
-        value: "_id",
+        name: "_id",
         type: ColumnType.ObjectId
     }];
-    for (const [key, value] of Object.entries(shape))
+
+    for (const [key, name] of Object.entries(shape))
     {
-        schema.push(getColumn(key, value._def.typeName));
+        if (customSchema.find(column => column.name === key))
+        {
+            schema.push(customSchema.find(column => column.name === key)!);
+            continue;
+        }
+        schema.push(getColumn(key, name._def.typeName));
     }
     return schema;
 };

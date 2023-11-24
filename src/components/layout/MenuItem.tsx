@@ -8,8 +8,8 @@ export default function MenuItem({ item }: { item: IMenu; })
 {
     return item.subMenus?.length ?
         <li><details open={false}>
-            <summary>
-                {item.icon && <Icon icon={item.icon} />}
+            <summary className="capitalize">
+                {item.icon && <Icon width={24} icon={item.icon} />}
                 {item.name}
             </summary>
             <ul>
@@ -17,8 +17,8 @@ export default function MenuItem({ item }: { item: IMenu; })
             </ul>
         </details></li>
         :
-        <li><Link href={item.route}>
-            {item.icon && <Icon icon={item.icon} />}
+        <li className="capitalize"><Link href={item.route}>
+            {item.icon && <Icon width={24} icon={item.icon} />}
             {item.name}
         </Link></li>;
 }

@@ -10,7 +10,7 @@ export const Menu = z.object({
     name: z.string().min(1, "Name is required."),
     description: z.string(),
     icon: z.string(),
-    route: z.string().min(1, "Route is required."),
+    route: z.string(),
     parent: z.string(),
     active: z.coerce.boolean(),
 });
