@@ -1,3 +1,4 @@
+import { DEFAULT_LIMIT } from "@/lib/consts/consts";
 import Collections, { DB_NAME } from "@/lib/consts/db";
 
 import { Key, KeyType, getFilter, getSort } from "@/lib/helpers/query";
@@ -31,7 +32,7 @@ export async function GET(request: NextRequest, { params }: { params: { slug: st
         ];
 
         const page = query.page ? parseInt(query.page as string) : 0;
-        const limit = query.limit ? parseInt(query.limit as string) : 20;
+        const limit = query.limit ? parseInt(query.limit as string) : DEFAULT_LIMIT;
         const skip = page * limit;
 
         const filter = getFilter(keys, query);

@@ -1,6 +1,7 @@
 
 import Table from "@/components/tables/Table";
-import { getMany } from "@/lib/actions/wildcard";
+import { getManyViaAPI } from "@/lib/api/api";
+import { getMany } from "@/lib/api/db";
 import { getSchema } from "@/lib/helpers/form";
 import { serialize } from "@/lib/helpers/structures";
 import { WildCard } from "@/lib/models/wildcard";
@@ -9,10 +10,9 @@ import { WildCard } from "@/lib/models/wildcard";
 export default async function Page({ params }: { params: { slug: string; }; })
 {
     const schema = getSchema(WildCard.shape);
-    const data = await getMany(params.slug, {});
-    const docs = serialize(data);
-    // console.log(docs);
+    const { data, count } = await getManyViaAPI(params.slug);
+    console.log(data);
     return <>
-        <Table schema={schema} docs={docs} collection={params.slug} />
+        <Table schema={schema} docs={data} collection={params.slug} />
     </>;
 }

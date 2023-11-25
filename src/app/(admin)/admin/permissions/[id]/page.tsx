@@ -1,7 +1,7 @@
 
 import Editor from "@/components/editors/Editor";
 import { updateOne } from "@/lib/actions/permissions";
-import { getMany, getOne } from "@/lib/actions/wildcard";
+import { getMany, getOne } from "@/lib/api/db";
 
 import Collections from "@/lib/consts/db";
 import { ColumnType, IColumn, getSchema } from "@/lib/helpers/form";

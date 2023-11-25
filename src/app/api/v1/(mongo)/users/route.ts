@@ -5,7 +5,8 @@ import { ObjectId } from "mongodb";
 import { NextRequest } from "next/server";
 import url from "url";
 import { User } from "@/lib/models/users";
-import { getCount, getMany } from "@/lib/actions/wildcard";
+import { getCount, getMany } from "@/lib/api/db";
+import { DEFAULT_LIMIT } from "@/lib/consts/consts";
 
 const COL_NAME = Collections.User;
 
@@ -30,7 +31,7 @@ export async function GET(request: NextRequest)
         ];
 
         const page = query.page ? parseInt(query.page as string) : 0;
-        const limit = query.limit ? parseInt(query.limit as string) : 20;
+        const limit = query.limit ? parseInt(query.limit as string) : DEFAULT_LIMIT;
         const skip = page * limit;
 
         const filter = getFilter(keys, query);

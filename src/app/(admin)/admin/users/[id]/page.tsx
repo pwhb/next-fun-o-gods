@@ -1,7 +1,7 @@
 import Editor from "@/components/editors/Editor";
 import { updateOne } from "@/lib/actions/users";
 
-import { getOne } from "@/lib/actions/wildcard";
+import { getOne } from "@/lib/api/db";
 import Collections from "@/lib/consts/db";
 import { getSchema } from "@/lib/helpers/form";
 import { serialize } from "@/lib/helpers/structures";

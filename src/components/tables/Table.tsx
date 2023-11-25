@@ -6,7 +6,7 @@ import { Icon } from "@iconify/react";
 import { useEffect, useState } from "react";
 import DeleteConfirmation from "../modal/DeleteConfirmation";
 import { openModal } from "../modal/Modal";
-import { deleteMany } from "@/lib/actions/wildcard";
+import { deleteMany } from "@/lib/api/db";
 
 function TableData({ type, data }: { type: ColumnType, data: any; })
 {

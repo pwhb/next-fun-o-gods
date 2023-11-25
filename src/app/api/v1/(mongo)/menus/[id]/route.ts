@@ -1,5 +1,5 @@
+import { update } from "@/lib/api/menus";
 import Collections, { DB_NAME } from "@/lib/consts/db";
-import { Menu } from "@/lib/models/menus";
 import clientPromise from "@/lib/mongodb";
 import { ObjectId } from "mongodb";
 import { notFound } from "next/navigation";
@@ -32,32 +32,15 @@ export async function PATCH(request: Request, { params }: { params: { id: string
     try
     {
         const body = await request.json();
-        const validated = Menu.safeParse(body);
-        if (!validated.success)
+        const { success, data } = await update(params.id, body);
+        if (!success)
         {
             return Response.json({
-                error: validated.error.flatten().fieldErrors,
+                error: data,
                 message: 'Missing Fields.',
             }, { status: 400 });
         }
-        const client = await clientPromise;
-        const col = client.db(DB_NAME).collection(COL_NAME);
-
-        const dbRes = await col.findOneAndUpdate({ _id: new ObjectId(params.id) }, {
-            $set: {
-                ...validated.data,
-                parent: validated.data.parent ? new ObjectId(validated.data.parent) : null,
-                "history.updated": {
-                    // by: authenticatedUser._id,
-                    at: new Date()
-                },
-
-            }
-        }, {
-            returnDocument: "after"
-        });
-
-        return Response.json({ data: dbRes }, { status: 201 });
+        return Response.json({ data: data }, { status: 201 });
     } catch (e: any)
     {
         console.error(e);

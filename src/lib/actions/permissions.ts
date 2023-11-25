@@ -1,8 +1,8 @@
 "use server";
 import { redirect } from "next/navigation";
 import Collections from "../consts/db";
-import { create, update } from "./wildcard";
 import { Permission } from "../models/permissions";
+import { create, update } from "../api/db";
 
 export async function createOne(prevState: any, formData: FormData)
 {

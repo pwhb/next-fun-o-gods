@@ -2,7 +2,6 @@
 import { Filter, FindOptions, ObjectId } from "mongodb";
 import { DB_NAME } from "../consts/db";
 import clientPromise from "../mongodb";
-import { serialize } from "../helpers/structures";
 
 export async function getOne(collection: string, filter: Filter<any>)
 {
