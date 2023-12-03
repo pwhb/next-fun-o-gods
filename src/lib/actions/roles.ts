@@ -1,7 +1,7 @@
 "use server";
 import { redirect } from "next/navigation";
 import Collections from "../consts/db";
-import { create, update } from "../api/menus";
+import { create, update } from "../api/roles";
 import { ObjectId } from "mongodb";
 
 export async function createOne(prevState: any, formData: FormData)
@@ -11,7 +11,7 @@ export async function createOne(prevState: any, formData: FormData)
     {
         return data;
     }
-    redirect(`/admin/${Collections.Menu}`);
+    redirect(`/admin/${Collections.Role}`);
 
 }
 
@@ -23,10 +23,13 @@ export async function updateOne(id: string, prevState: any, formData: FormData)
     }
 
     const { success, data } = await update(id, Object.fromEntries(formData));
+
+    console.log({ success, data });
+
     if (!success)
     {
         return data;
     }
-    redirect(`/admin/${Collections.Menu}`);
+    redirect(`/admin/${Collections.Role}`);
 }
 

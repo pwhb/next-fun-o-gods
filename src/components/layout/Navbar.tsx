@@ -21,7 +21,7 @@ export default async function Navbar()
                 </label>
                 <ul tabIndex={0} className="mt-3 z-[1] p-2 shadow menu menu-sm dropdown-content bg-base-100 rounded-box w-52">
                     <li>
-                        <a href="/">{user.username}</a>
+                        <a href="/">{user.username} ({user.role})</a>
                     </li>
                     <form action={logout}>
                         <li>

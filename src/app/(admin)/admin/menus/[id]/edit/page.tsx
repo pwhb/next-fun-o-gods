@@ -21,7 +21,9 @@ export default async function Page({ params }: { params: { id: string; }; })
         }))
     }]);
 
+    const updateOneWithId = updateOne.bind(null, doc!._id.toString());
+
     return <>
-        <Editor schema={schema} action={updateOne} doc={serialize(doc)} />
+        <Editor schema={schema} action={updateOneWithId} doc={serialize(doc)} />
     </>;
 }

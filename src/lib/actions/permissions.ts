@@ -1,45 +1,32 @@
 "use server";
 import { redirect } from "next/navigation";
 import Collections from "../consts/db";
-import { Permission } from "../models/permissions";
-import { create, update } from "../api/db";
+import { create, update } from "../api/permissions";
+import { ObjectId } from "mongodb";
 
 export async function createOne(prevState: any, formData: FormData)
 {
-    const validated = Permission.safeParse(Object.fromEntries(formData));
-    if (!validated.success)
+    const { success, data } = await create(Object.fromEntries(formData));
+    if (!success)
     {
-        console.log("validated.error", validated.error.flatten().fieldErrors);
-        return validated.error.flatten().fieldErrors;
+        return data;
     }
+    redirect(`/admin/${Collections.Permission}`);
 
-    const res = await create(Collections.Permission, validated.data);
-    if (res.insertedId)
-    {
-        redirect(`/admin/${Collections.Permission}`);
-    }
 }
 
-export async function updateOne(prevState: any, formData: FormData)
+export async function updateOne(id: string, prevState: any, formData: FormData)
 {
-
-    const id = formData.get("id") as string;
-    if (!id)
+    if (!id || !ObjectId.isValid(id))
     {
         return;
     }
 
-    const validated = Permission.safeParse(Object.fromEntries(formData));
-    if (!validated.success)
+    const { success, data } = await update(id, Object.fromEntries(formData));
+    if (!success)
     {
-        console.log("validated.error", validated.error.flatten().fieldErrors);
-        return validated.error.flatten().fieldErrors;
+        return data;
     }
-
-    const res = await update(Collections.Permission, id, validated.data);
-    if (res?._id)
-    {
-        redirect(`/admin/${Collections.Permission}`);
-    }
+    redirect(`/admin/${Collections.Permission}`);
 }
 

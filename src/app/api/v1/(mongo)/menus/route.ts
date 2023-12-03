@@ -3,9 +3,6 @@ import clientPromise from "@/lib/mongodb";
 import { Filter, ObjectId } from "mongodb";
 import { NextRequest } from "next/server";
 import url from "url";
-import { makeTree, serialize } from "@/lib/helpers/structures";
-import { time } from "@/lib/helpers/time";
-import { getMany } from "@/lib/api/db";
 import { create, deleteMany, readMany } from "@/lib/api/menus";
 
 const COL_NAME = Collections.Menu;
@@ -16,13 +13,7 @@ export async function getOne(filter: Filter<any>)
     const col = client.db(DB_NAME).collection(COL_NAME);
     return await col.findOne(filter);
 }
-export async function getMenuTree()
-{
-    const all = await time(async () => await getMany(COL_NAME, { active: true }), "Fetching all menus");
-    const serialized = await time(async () => serialize(all), "Serializing");
-    const tree = await time(async () => makeTree(serialized, "subMenus"), "Making tree");
-    return tree;
-}
+
 
 
 

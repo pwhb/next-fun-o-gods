@@ -17,25 +17,35 @@ export enum ColumnType
     ObjectId = "objectId",
     Icon = "icon",
     Option = "option",
-    MultiSelect = "multiSelect"
+    MultiSelect = "multiSelect",
+    Skip = "skip"
 }
 
 function getColumn(key: string, typeName: string)
 {
+    console.log({ key, typeName });
+
     switch (typeName)
     {
-        case ("ZodString"): {
+        case "ZodString": {
             return {
                 label: key,
                 name: key,
                 type: key === "icon" ? ColumnType.Icon : ColumnType.Text
             };
         }
-        case ("ZodBoolean"): {
+        case "ZodBoolean": {
             return {
                 label: key,
                 name: key,
                 type: ColumnType.Boolean
+            };
+        }
+        case "ZodArray": {
+            return {
+                label: key,
+                name: key,
+                type: ColumnType.MultiSelect
             };
         }
         default: {

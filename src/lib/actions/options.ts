@@ -1,9 +1,9 @@
 "use server";
 import { redirect } from "next/navigation";
 import Collections from "../consts/db";
-
 import { Option } from "../models/options";
 import { create, update } from "../api/db";
+import { ObjectId } from "mongodb";
 
 
 export async function createOne(prevState: any, formData: FormData)
@@ -21,11 +21,10 @@ export async function createOne(prevState: any, formData: FormData)
     }
 }
 
-export async function updateOne(prevState: any, formData: FormData)
+export async function updateOne(id: string, prevState: any, formData: FormData)
 {
 
-    const id = formData.get("id") as string;
-    if (!id)
+    if (!id || !ObjectId.isValid(id))
     {
         return;
     }

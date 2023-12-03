@@ -1,63 +1,28 @@
 import { ObjectId } from "mongodb";
 import Collections, { DB_NAME } from "../consts/db";
-import { Menu } from "../models/menus";
+
 import clientPromise from "../mongodb";
 import { getCount, getMany } from "./db";
 import { DEFAULT_LIMIT } from "../consts/consts";
 import { Key, KeyType, getFilter, getSort } from "../helpers/query";
-import { makeTree, serialize } from "../helpers/structures";
-import { time } from "../helpers/time";
+import { CreatePermission, Permission } from "../models/permissions";
 
-const COL_NAME = Collections.Menu;
-
-export async function getMenuTree()
-{
-    const all = await time(async () => await getMany(COL_NAME, { active: true }), "Fetching all menus");
-    const serialized = await time(async () => serialize(all), "Serializing");
-    const tree = await time(async () => makeTree(serialized, "subMenus"), "Making tree");
-    return tree;
-}
-
-export async function getMenuTreeWithPermissions()
-{
-    const all = await time(async () =>
-    {
-        const client = await clientPromise;
-        const col = client.db(DB_NAME).collection(COL_NAME);
-        return await col.aggregate([
-            {
-                $match: {
-                    active: true
-                },
-            },
-            {
-                $lookup: {
-                    from: "permissions",
-                    localField: "_id",
-                    foreignField: "menu",
-                    as: "permissions"
-                }
-            }
-        ]).toArray();
-    }, "Fetching all menus");
-    const serialized = await time(async () => serialize(all), "Serializing");
-    const tree = await time(async () => makeTree(serialized, "subMenus"), "Making tree");
-    return tree;
-}
-
+const COL_NAME = Collections.Permission;
 export async function create(data: any, authenticatedUser?: any)
 {
-    const validated = Menu.safeParse(data);
+    const validated = CreatePermission.safeParse(data);
     if (!validated.success)
     {
         return { success: false, data: validated.error.flatten().fieldErrors };
     }
     const client = await clientPromise;
-    const col = client.db(DB_NAME).collection(COL_NAME);
+    const db = client.db(DB_NAME);
 
-    const dbRes = await col.insertOne({
+    const { name } = await db.collection(Collections.Menu).findOne({ _id: new ObjectId(validated.data.menu) }) as any;
+    const dbRes = await db.collection(COL_NAME).insertOne({
         ...validated.data,
-        parent: validated.data.parent ? new ObjectId(validated.data.parent) : null,
+        name: validated.data.action + "-" + name,
+        menu: validated.data.menu ? new ObjectId(validated.data.menu) : null,
         history: {
             created: {
                 by: authenticatedUser?._id,
@@ -102,20 +67,23 @@ export async function readMany(query: any)
 
 export async function update(id: string, data: any, authenticatedUser?: any)
 {
-    const validated = Menu.safeParse(data);
+    const validated = CreatePermission.safeParse(data);
     if (!validated.success)
     {
         return { success: false, data: validated.error.flatten().fieldErrors };
     }
     const client = await clientPromise;
-    const col = client.db(DB_NAME).collection(COL_NAME);
+    const db = client.db(DB_NAME);
 
-    const dbRes = await col.findOneAndUpdate({ _id: new ObjectId(id) }, {
+    const { name } = await db.collection(Collections.Menu).findOne({ _id: new ObjectId(validated.data.menu) }) as any;
+
+    const dbRes = await db.collection(COL_NAME).findOneAndUpdate({ _id: new ObjectId(id) }, {
         $set: {
             ...validated.data,
-            parent: validated.data.parent ? new ObjectId(validated.data.parent) : null,
+            name: validated.data.action + "-" + name,
+            menu: validated.data.menu ? new ObjectId(validated.data.menu) : null,
             "history.updated": {
-                // by: authenticatedUser._id,
+                by: authenticatedUser?._id,
                 at: new Date()
             },
 

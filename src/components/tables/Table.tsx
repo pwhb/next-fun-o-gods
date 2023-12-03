@@ -6,7 +6,6 @@ import { Icon } from "@iconify/react";
 import { useEffect, useState } from "react";
 import DeleteConfirmation from "../modal/DeleteConfirmation";
 import { openModal } from "../modal/Modal";
-import { deleteMany } from "@/lib/api/db";
 
 function TableData({ type, data }: { type: ColumnType, data: any; })
 {
@@ -32,7 +31,7 @@ function TableRow({ schema, doc, index, checked, onCheck }: { schema: IColumn[];
     return <tr>
         <td >{index + 1}</td>
         {schema.map((col, j) => <TableData key={`td-${index}-${j}`} type={col.type} data={doc[col.name]} />)}
-        <td><Link href={`/admin/${slug}/${doc._id}`} className="btn btn-secondary btn-xs">Edit</Link></td>
+        <td><Link href={`/admin/${slug}/${doc._id}/edit`} className="btn btn-secondary btn-xs">Edit</Link></td>
         <td><input type="checkbox" checked={checked} onChange={onCheck} /></td>
     </tr>;
 }
@@ -50,11 +49,11 @@ export default function Table({ schema, docs, collection }: { schema: IColumn[];
 
     const onDelete = () =>
     {
-        openModal(`delete-${collection}-confirmation-modal`);
+        openModal(`delete-${slug}-confirmation-modal`);
     };
 
     return <>
-        <DeleteConfirmation collection={collection} ids={docs.filter((_, i) => selected[i]).map(doc => doc._id)} />
+        <DeleteConfirmation collection={slug} ids={docs.filter((_, i) => selected[i]).map(doc => doc._id)} />
         <table className="table">
             {/* head */}
             <thead>

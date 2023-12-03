@@ -7,6 +7,7 @@ export interface IPermission extends z.infer<typeof Permission>
 };
 
 
+
 export const Permission = z.object({
     name: z.string(),
     description: z.string(),
@@ -16,3 +17,4 @@ export const Permission = z.object({
 });
 
 
+export const CreatePermission = Permission.omit({ name: true });
