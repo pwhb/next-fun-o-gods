@@ -1,15 +1,21 @@
-import { cookies } from 'next/headers';
+// import { cookies } from 'next/headers';
 import { NextResponse } from 'next/server';
 import { NextRequest } from 'next/server';
+// import clientPromise from './lib/mongodb';
+// import Collections, { DB_NAME } from './lib/consts/db';
 
 // This function can be marked `async` if using `await` inside
-export function middleware(request: NextRequest)
+export async function middleware(request: NextRequest)
 {
 
     const userJSONString = request.cookies.get("user");
     const tokenString = request.cookies.get("token");
 
     console.log("middleware", tokenString, request.nextUrl.pathname);
+
+    // const client = await clientPromise;
+    // const users = await client.db(DB_NAME).collection(Collections.User).find().toArray();
+    // console.log("users", users);
 
     if (request.nextUrl.pathname.startsWith("/admin"))
     {
@@ -27,8 +33,7 @@ export function middleware(request: NextRequest)
             return NextResponse.redirect(new URL('/', request.url));
         }
     }
-
-
+    
     return NextResponse.next();
 }
 
